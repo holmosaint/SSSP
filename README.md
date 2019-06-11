@@ -6,7 +6,7 @@ Use Dijkastra algorithm with Fibonacci heap.
 
 | Dataset | NE | NY | CTR |  
 |---|---|---|---|  
-| Serial | 1.51s | 10.05s | 124.65 |  
+| Serial | 1.51s | 10.05s | 124.65s |  
 
 ## Reference
 - The fibonacci heap/queue is copied from [repo](https://github.com/beniz/fiboheap.git).

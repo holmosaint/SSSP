@@ -17,7 +17,7 @@ __kernel void initializeBuffers(__global int *maskArray, __global long long *cos
 // first phase
 __kernel void DijkstraKernel1(__global int *vertexArray,
                               __global int *edgeArray,
-                              __global long long *weightArray,
+                              __global int *weightArray,
                               __global int *maskArray,
                               __global long long *costArray, 
                               __global long long *updatingCostArray,
@@ -46,7 +46,7 @@ __kernel void DijkstraKernel1(__global int *vertexArray,
 // second phase
 __kernel void DijkstraKernel2(__global int *vertexArray, 
                               __global int *edgeArray, 
-                              __global long long *weightArray, 
+                              __global int *weightArray, 
                               __global int *maskArray, 
                               __global long long *costArray, 
                               __global long long *updatingCostArray, 

@@ -122,7 +122,7 @@ void allocateOCLBuffers(cl_context gpuContext, cl_command_queue commandQueue, Gr
     checkError(errNum, CL_SUCCESS);
 
     hostWeightArrayBuffer = clCreateBuffer(gpuContext, CL_MEM_COPY_HOST_PTR | CL_MEM_ALLOC_HOST_PTR,
-                                           sizeof(long long) * graph->edgeCount, graph->weightArray, &errNum);
+                                           sizeof(int) * graph->edgeCount, graph->weightArray, &errNum);
     checkError(errNum, CL_SUCCESS);
 
     // Now create all of the GPU buffers
@@ -130,7 +130,7 @@ void allocateOCLBuffers(cl_context gpuContext, cl_command_queue commandQueue, Gr
     checkError(errNum, CL_SUCCESS);
     *edgeArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_ONLY, sizeof(int) * graph->edgeCount, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
-    *weightArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_ONLY, sizeof(long long) * graph->edgeCount, NULL, &errNum);
+    *weightArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_ONLY, sizeof(int) * graph->edgeCount, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
     *maskArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(int) * globalWorkSize, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
@@ -149,7 +149,7 @@ void allocateOCLBuffers(cl_context gpuContext, cl_command_queue commandQueue, Gr
     checkError(errNum, CL_SUCCESS);
 
     errNum = clEnqueueCopyBuffer(commandQueue, hostWeightArrayBuffer, *weightArrayDevice, 0, 0,
-                                 sizeof(long long) * graph->edgeCount, 0, NULL, NULL);
+                                 sizeof(int) * graph->edgeCount, 0, NULL, NULL);
     checkError(errNum, CL_SUCCESS);
 
     clReleaseMemObject(hostVertexArrayBuffer);

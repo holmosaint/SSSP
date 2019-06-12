@@ -8,6 +8,12 @@ Use Dijkastra algorithm with Fibonacci heap.
 |---|---|---|---|  
 | Serial | 1.51s | 10.05s | 124.65s |  
 
+## OpenCL Implementation
+Compile method: 
+```
+gcc -o main -I$ATISTREAMSDKROOT/include -L$ATISTREAMSDKROOT/lib/x86_64 main.cpp Dijkstra.cpp -lOpenCL -lstdc++ -lpthread
+```
+
 ## Reference
 - The fibonacci heap/queue is copied from [repo](https://github.com/beniz/fiboheap.git).
 - The dataset can be downloaded from [here](http://users.diag.uniroma1.it/challenge9/competition.shtml)

@@ -5,7 +5,6 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include "graph.h"
 #include "device.h"
 #include "Dijkstra.h"
 #include <CL/cl.h>

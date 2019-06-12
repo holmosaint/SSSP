@@ -7,14 +7,7 @@
 #include "graph.h"
 #include "Dijkstra.h"
 
-using namespace std;
-
-/*
- * This function will compute the shortest-path distance from sourceVertices[n] -> endVertices[n] and store the cost in outResultCosts[n]. The number of results it will compute is given by numResults.z
- */
-void runDijkstra(cl_context gpuContext, cl_device_id deviceId, GraphData *graph, int *sourceVertices, long long *outResultCosts, int numResults) {
-    
-}
+// using namespace std;
 
 void buildGraph(GraphData *graph) {
 

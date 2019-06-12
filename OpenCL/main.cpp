@@ -112,8 +112,8 @@ void releaseGraph(GraphData *graph) {
 }
 
 int main(int argc, char **argv) {
-    if(argc != 3) {
-        printf("Usage: ./main [graph file path] [source node file path]\n");
+    if(argc != 4) {
+        printf("Usage: ./main [graph file path] [source node file path] [result file path]\n");
         exit(1);
     }
     char graphFile[50];
@@ -174,6 +174,22 @@ int main(int argc, char **argv) {
     //                                                   results, sourceNum);
     runDijkstraMultiGPU(gpuContext, &graph, sourceVertices, results, sourceNum);
     printf("Processing time: %.2f\n", (clock() - t) * 1.0 / CLOCKS_PER_SEC);
+    
+    std::ofstream result_file;
+    char resFile[50];
+	memcpy(resFile, argv[3], strlen(argv[3]));
+	resFile[strlen(argv[3])] = '\0'; 
+    result_file.open(resFile, std::ios::out | std::ios::trunc);
+	int offset = 0;
+    for(int i = 0;i < sourceNum; ++i) {
+		long long dis = 0;
+		for(int j = 0; j < graph.vertexCount; ++j) {
+			dis += results[offset + j];
+		}
+		offset += graph.vertexCount;
+		result_file << "ss " << dis << std::endl;
+    }
+	result_file.close();
 
     releaseGraph(&graph);
     free(sourceVertices);

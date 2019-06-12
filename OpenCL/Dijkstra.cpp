@@ -207,6 +207,7 @@ cl_program loadAndBuildProgram(cl_context gpuContext, const char *fileName) {
         printf("Error: Can not read source file content.\n");
         exit(1);
     }
+    // printf("%s\n", source);
 
     // Create the program for all GPUs in the context
     program = clCreateProgramWithSource(gpuContext, 1, (const char **)&source, NULL, &errNum);
@@ -232,12 +233,13 @@ cl_program loadAndBuildProgram(cl_context gpuContext, const char *fileName) {
  * This function will run the algorithm on as many GPUs as is available along with
  * the CPU.  It will create N threads, one for each device, and chunk the workload up to perform
  * (numResults / N) searches per device.
- */
+ * */
 
 void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, int *sourceVertices, long long *outResultCosts, int numResults) {
     cl_int errNum;
     cl_command_queue commandQueue;
     commandQueue = clCreateCommandQueue(context, deviceId, 0, &errNum);
+    printf("Create command queue for device %d at 0x%x\n", deviceId, &commandQueue);
     if(errNum != CL_SUCCESS) {
         printf("ErrorL: Can not build command queue!\n");
         exit(1);
@@ -281,6 +283,7 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
         printf("Error: can not create initialize buffer kernel: %d\n", errNum);
         exit(1);
     }
+    printf("Create Kernel at device %d\n", deviceId);
 
     // set the args
     errNum |= clSetKernelArg(initializeBuffersKernel, 0, sizeof(cl_mem), &maskArrayDevice);

@@ -7,6 +7,7 @@
 #include <deque>
 #include <assert.h>
 #include <ctime>
+#include <cstring>
 #include "graph.h"
 #include "Dijkstra.h"
 
@@ -19,9 +20,9 @@ struct node_struct {
 
 void buildGraph(GraphData *graph, char *graphFile) {
     std::ifstream infile;
-	infile.open(graphFile, ios::in);
+	infile.open(graphFile, std::ios::in);
 	if (!infile.is_open()) {
-		cout << "Can not open the gr file!" << endl;
+        printf("Can not open the gr file!\n");
 		exit(1);
 	}
 	std::string line;
@@ -30,14 +31,14 @@ void buildGraph(GraphData *graph, char *graphFile) {
 	while (getline(infile, line)) {
 		if (line[0] == 'c')
 			continue;
-		stringstream lineStream(line);
-		string type, tmp;
+        std::stringstream lineStream(line);
+        std::string type, tmp;
 		int src, target, w;
 		lineStream >> type;
 		if (type == "p") {
 			lineStream >> tmp;
 			lineStream >> v_cnt >> arc_cnt;
-			node_matrix = new deque<node_struct>[v_cnt];
+			node_matrix = new std::deque<node_struct>[v_cnt];
 		}
 		else {
 			lineStream >> src >> target >> w;
@@ -73,9 +74,9 @@ int getSourceVertices(int *sourceVertices, char *sourceFile) {
     int sourceCount = 0;
     std::vector<int> src_node;
     std::ifstream infile;
-	infile.open(sourceFile, ios::in);
+	infile.open(sourceFile, std::ios::in);
 	if (!infile.is_open()) {
-		cout << "Can not open the ss file!" << endl;
+        printf("Can not open the ss file!\n");
 		exit(1);
 	}
     std::string line;
@@ -110,6 +111,15 @@ void releaseGraph(GraphData *graph) {
 }
 
 int main(int argc, char **argv) {
+    if(argc != 3) {
+        printf("Usage: ./main [graph file path] [source node file path]\n");
+        exit(1);
+    }
+    char graphFile[50];
+    memcpy(graphFile, argv[1], strlen(argv[1]));
+    char srcFile[50];
+    memcpy(srcFile, argv[2], strlen(argv[2]));
+
     cl_platform_id platform;
     cl_context gpuContext;
     cl_context cpuContext;
@@ -124,6 +134,11 @@ int main(int argc, char **argv) {
     }
 
     // create the OpenCL context on GPU devices
+    cl_context_properties properties[3];
+    // context properties list -- must be terminated with 0
+    properties[0] = CL_CONTEXT_PLATFORM;    // specifies the platform to use
+    properties[1] = (cl_context_properties) platform;
+    properties[2] = 0;
     gpuContext = clCreateContextFromType(0, CL_DEVICE_TYPE_GPU, NULL, NULL, &errNum);
     if(errNum != CL_SUCCESS) {
         printf("No GPU devices found.\n");
@@ -139,7 +154,7 @@ int main(int argc, char **argv) {
 
     t = clock();
     GraphData graph;
-    buildGraph(&graph);
+    buildGraph(&graph, graphFile);
     printf("Building graph time: %.2f\n", (clock() - t) * 1.0 / CLOCKS_PER_SEC);
 
     printf("Vertex Count: %d\n", graph.vertexCount);
@@ -147,16 +162,17 @@ int main(int argc, char **argv) {
 
     int sourceNum;
     int *sourceVertices;
-    sourceNum = getSourceVertices(sourceVertices);
+    sourceNum = getSourceVertices(sourceVertices, srcFile);
     assert(sourceNum > 0);
 
     long long *results = (long long *)malloc(sizeof(long long) * sourceNum * graph.vertexCount);
     t = clock();
-    runDijkstraMultiGPUandCPU(gpuContext, cpuContext, &graph, sourceVertices,
-                                                      results, sourceNum);
+    // runDijkstraMultiGPUandCPU(gpuContext, cpuContext, &graph, sourceVertices,
+    //                                                   results, sourceNum);
+    runDijkstraMultiGPU(gpuContext, &graph, sourceVertices, results, sourceNum);
     printf("Processing time: %.2f\n", (clock() - t) * 1.0 / CLOCKS_PER_SEC);
 
-    releaseGraph(graph);
+    releaseGraph(&graph);
     free(sourceVertices);
     free(results);
 }

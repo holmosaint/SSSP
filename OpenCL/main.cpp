@@ -20,10 +20,11 @@ struct node_struct {
 
 void buildGraph(GraphData *graph, char *graphFile) {
     std::ifstream infile;
+    printf("Graph file: %s\n", graphFile);
 	infile.open(graphFile, std::ios::in);
 	if (!infile.is_open()) {
-        printf("Can not open the gr file!\n");
-		exit(1);
+            printf("Can not open the gr file!\n");
+            exit(1);
 	}
 	std::string line;
 	int v_cnt, arc_cnt;
@@ -67,7 +68,7 @@ void buildGraph(GraphData *graph, char *graphFile) {
         offset += arc_num;
     }
 
-    free(node_matrix);
+    delete []node_matrix;
 }
 
 int getSourceVertices(int *sourceVertices, char *sourceFile) {
@@ -117,8 +118,10 @@ int main(int argc, char **argv) {
     }
     char graphFile[50];
     memcpy(graphFile, argv[1], strlen(argv[1]));
+    graphFile[strlen(argv[1])] = '\0';
     char srcFile[50];
     memcpy(srcFile, argv[2], strlen(argv[2]));
+    srcFile[strlen(argv[2])] = '\0';
 
     cl_platform_id platform;
     cl_context gpuContext;
@@ -139,7 +142,7 @@ int main(int argc, char **argv) {
     properties[0] = CL_CONTEXT_PLATFORM;    // specifies the platform to use
     properties[1] = (cl_context_properties) platform;
     properties[2] = 0;
-    gpuContext = clCreateContextFromType(0, CL_DEVICE_TYPE_GPU, NULL, NULL, &errNum);
+    gpuContext = clCreateContextFromType(properties, CL_DEVICE_TYPE_GPU, NULL, NULL, &errNum);
     if(errNum != CL_SUCCESS) {
         printf("No GPU devices found.\n");
         exit(1);            
@@ -149,7 +152,7 @@ int main(int argc, char **argv) {
     cpuContext = clCreateContextFromType(0, CL_DEVICE_TYPE_CPU, NULL, NULL, &errNum);
     if(errNum != CL_SUCCESS) {
         printf("No CPU devices found.\n");
-        exit(1);
+        // exit(1);
     }
 
     t = clock();

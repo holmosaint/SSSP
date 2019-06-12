@@ -277,7 +277,7 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
     cl_kernel initializeBuffersKernel;
     initializeBuffersKernel = clCreateKernel(program, "initializeBuffers", &errNum);
     if(errNum != CL_SUCCESS) {
-        printf("Error: can not create initialize buffer kernel.\n");
+        printf("Error: can not create initialize buffer kernel: %d\n", errNum);
         exit(1);
     }
 
@@ -424,7 +424,7 @@ void dijkstraThread(DevicePlan *plan) {
 }
 
 void runDijkstraMultiGPU( cl_context gpuContext, GraphData* graph, int *sourceVertices,
-                          float *outResultCosts, int numResults )
+                          long long *outResultCosts, int numResults )
 {
 
     // Find out how many GPU's to compute on all available GPUs

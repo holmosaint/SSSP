@@ -6,8 +6,9 @@
 #include <iostream>
 #include <fstream>
 #include <CL/cl.h>
-#include <graph.h>
-#include <device.h>
+#include "graph.h"
+#include "device.h"
+#include "Dijkstra.h"
 
 using namespace std;
 

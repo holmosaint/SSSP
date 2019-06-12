@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <ctime>
 #include "graph.h"
+#include "Dijkstra.h"
 
 using namespace std;
 

@@ -123,7 +123,7 @@ long long dijkastra_queue(int src, int node_num, deque<node_struct> *node_matrix
 int main() {
 	ifstream infile;
 	clock_t t = clock();
-	infile.open("./data/USA-road-d.NY.gr", ios::in);
+	infile.open("../data/USA-road-d.CTR.gr", ios::in);
 	if (!infile.is_open()) {
 		cout << "Can not open the gr file!" << endl;
 		// system("pause");
@@ -159,7 +159,7 @@ int main() {
 
 	vector<int> src_node;
 	int src_cnt;
-	infile.open("./data/USA-road-d.NY.ss", ios::in);
+	infile.open("../data/USA-road-d.CTR.ss", ios::in);
 	if (!infile.is_open()) {
 		cout << "Can not open the ss file!" << endl;
 		// system("pause");
@@ -189,7 +189,7 @@ int main() {
 
     t = clock();    
     ofstream result_file;
-    result_file.open("./result.NY.txt", ios::out | ios::trunc);
+    result_file.open("./result.CTR.txt", ios::out | ios::trunc);
 	for (unsigned int i = 0; i < src_node.size(); ++i) {
         // long long dis_sum = dijkastra(src_node[i], v_cnt, node_matrix);
         // long long dis_sum = dijkastra_heap(src_node[i], v_cnt, node_matrix);

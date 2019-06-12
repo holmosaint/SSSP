@@ -122,7 +122,7 @@ void allocateOCLBuffers(cl_context gpuContext, cl_command_queue commandQueue, Gr
     checkError(errNum, CL_SUCCESS);
 
     hostWeightArrayBuffer = clCreateBuffer(gpuContext, CL_MEM_COPY_HOST_PTR | CL_MEM_ALLOC_HOST_PTR,
-                                           sizeof(float) * graph->edgeCount, graph->weightArray, &errNum);
+                                           sizeof(long long) * graph->edgeCount, graph->weightArray, &errNum);
     checkError(errNum, CL_SUCCESS);
 
     // Now create all of the GPU buffers
@@ -130,13 +130,13 @@ void allocateOCLBuffers(cl_context gpuContext, cl_command_queue commandQueue, Gr
     checkError(errNum, CL_SUCCESS);
     *edgeArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_ONLY, sizeof(int) * graph->edgeCount, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
-    *weightArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_ONLY, sizeof(float) * graph->edgeCount, NULL, &errNum);
+    *weightArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_ONLY, sizeof(long long) * graph->edgeCount, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
     *maskArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(int) * globalWorkSize, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
-    *costArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(float) * globalWorkSize, NULL, &errNum);
+    *costArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(long long) * globalWorkSize, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
-    *updatingCostArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(float) * globalWorkSize, NULL, &errNum);
+    *updatingCostArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(long long) * globalWorkSize, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
 
     // Now queue up the data to be copied to the device
@@ -149,7 +149,7 @@ void allocateOCLBuffers(cl_context gpuContext, cl_command_queue commandQueue, Gr
     checkError(errNum, CL_SUCCESS);
 
     errNum = clEnqueueCopyBuffer(commandQueue, hostWeightArrayBuffer, *weightArrayDevice, 0, 0,
-                                 sizeof(float) * graph->edgeCount, 0, NULL, NULL);
+                                 sizeof(long long) * graph->edgeCount, 0, NULL, NULL);
     checkError(errNum, CL_SUCCESS);
 
     clReleaseMemObject(hostVertexArrayBuffer);
@@ -207,9 +207,11 @@ cl_program loadAndBuildProgram(cl_context gpuContext, const char *fileName) {
         printf("Error: Can not read source file content.\n");
         exit(1);
     }
+    // printf("%s\n", source);
 
     // Create the program for all GPUs in the context
     program = clCreateProgramWithSource(gpuContext, 1, (const char **)&source, NULL, &errNum);
+    errNum = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
     if(errNum != CL_SUCCESS) {
         char cBuildLog[10240];
         clGetProgramBuildInfo(program, getFirstDev(gpuContext), CL_PROGRAM_BUILD_LOG, sizeof(cBuildLog), cBuildLog, NULL);
@@ -231,12 +233,13 @@ cl_program loadAndBuildProgram(cl_context gpuContext, const char *fileName) {
  * This function will run the algorithm on as many GPUs as is available along with
  * the CPU.  It will create N threads, one for each device, and chunk the workload up to perform
  * (numResults / N) searches per device.
- */
+ * */
 
 void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, int *sourceVertices, long long *outResultCosts, int numResults) {
     cl_int errNum;
     cl_command_queue commandQueue;
     commandQueue = clCreateCommandQueue(context, deviceId, 0, &errNum);
+    printf("Create command queue for device %d at 0x%x\n", deviceId, &commandQueue);
     if(errNum != CL_SUCCESS) {
         printf("ErrorL: Can not build command queue!\n");
         exit(1);
@@ -280,12 +283,13 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
         printf("Error: can not create initialize buffer kernel: %d\n", errNum);
         exit(1);
     }
+    printf("Create Kernel at device %d\n", deviceId);
 
     // set the args
     errNum |= clSetKernelArg(initializeBuffersKernel, 0, sizeof(cl_mem), &maskArrayDevice);
     errNum |= clSetKernelArg(initializeBuffersKernel, 1, sizeof(cl_mem), &costArrayDevice);
     errNum |= clSetKernelArg(initializeBuffersKernel, 2, sizeof(cl_mem), &updatingCostArrayDevice);
-    errNum |= clSetKernelArg(initializeBuffersKernel, 4, sizeof(cl_mem), &graph->vertexCount);
+    errNum |= clSetKernelArg(initializeBuffersKernel, 4, sizeof(int), &graph->vertexCount);
     if(errNum != CL_SUCCESS) {
         printf("Error: can not set args for initialize Buffers Kernel.\n");
         exit(1);

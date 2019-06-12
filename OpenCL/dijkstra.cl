@@ -28,10 +28,10 @@ __kernel void DijkstraKernel1(__global int *vertexArray,
     if(maskArray[tid] != 0) {
         maskArray[tid] = 0;
         
-        int edgeStart = vertexCount[tid];
+        int edgeStart = vertexArray[tid];
         int edgeEnd;
         if(tid + 1 < vertexCount)
-            edgeEnd = vertexCount[tid + 1];
+            edgeEnd = vertexArray[tid + 1];
         else edgeEnd = edgeCount;
 
         for(int edge = edgeStart; edge < edgeEnd; ++edge) {

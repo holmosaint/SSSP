@@ -1,4 +1,4 @@
-typedef struct {
+struct GraphData{
     // This contains a pointer to the edge list for each vertex
     int *vertexArray;
     
@@ -14,4 +14,4 @@ typedef struct {
      // weight array
      int *weightArray;
                                  
-}GraphData;
+};

@@ -423,6 +423,67 @@ void dijkstraThread(DevicePlan *plan) {
     runDijkstra(plan->context, plan->deviceId, plan->graph, plan->sourceVertices, plan->outResultCosts, plan->numResults);
 }
 
+void runDijkstraMultiGPU( cl_context gpuContext, GraphData* graph, int *sourceVertices,
+                          float *outResultCosts, int numResults )
+{
+
+    // Find out how many GPU's to compute on all available GPUs
+    cl_int errNum;
+    size_t deviceBytes;
+    cl_uint deviceCount;
+
+    errNum = clGetContextInfo(gpuContext, CL_CONTEXT_DEVICES, 0, NULL, &deviceBytes);
+    checkError(errNum, CL_SUCCESS);
+    deviceCount = (cl_uint)deviceBytes/sizeof(cl_device_id);
+
+    if (deviceCount == 0)
+    {
+        cerr << "ERROR: no GPUs present!" << endl;
+        return;
+    }
+
+    DevicePlan *devicePlans = (DevicePlan*) malloc(sizeof(DevicePlan) * deviceCount);
+    pthread_t *threadIDs = (pthread_t*) malloc(sizeof(pthread_t) * deviceCount);
+
+    // Divide the workload out per device
+    int resultsPerDevice = numResults / deviceCount;
+
+    int offset = 0;
+
+    for (unsigned int i = 0; i < deviceCount; i++)
+    {
+        devicePlans[i].context = gpuContext;
+        devicePlans[i].deviceId = getDev(gpuContext, i);;
+        devicePlans[i].graph = graph;
+        devicePlans[i].sourceVertices = &sourceVertices[offset];
+        devicePlans[i].outResultCosts = &outResultCosts[offset * graph->vertexCount];
+        devicePlans[i].numResults = resultsPerDevice;
+
+        offset += resultsPerDevice;
+    }
+
+    // Add any remaining work to the last GPU
+    if (offset < numResults)
+    {
+        devicePlans[deviceCount - 1].numResults += (numResults - offset);
+    }
+
+    // Launch all the threads
+    for (unsigned int i = 0; i < deviceCount; i++)
+    {
+        pthread_create(&threadIDs[i], NULL, (void* (*)(void*))dijkstraThread, (void*)(devicePlans + i));
+    }
+
+    // Wait for the results from all threads
+    for (unsigned int i = 0; i < deviceCount; i++)
+    {
+        pthread_join(threadIDs[i], NULL);
+    }
+
+    free (devicePlans);
+    free (threadIDs);
+}
+
 void runDijkstraMultiGPUandCPU( cl_context gpuContext, cl_context cpuContext, GraphData* graph, 
                                 int *sourceVertices, long long *outResultCosts, int numResults) {
     float ratioCPUtoGPU = 2.26;     // CPU seems to run it at 2.26X on GT120 GPU

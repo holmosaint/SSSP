@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     cl_context gpuContext;
     cl_context cpuContext;
     cl_int errNum;
-    clock_t t
+    clock_t t;
 
     cl_uint numPlatforms;
     errNum = clGetPlatformIDs(1, &platform, &numPlatforms);

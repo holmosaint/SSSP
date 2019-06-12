@@ -71,7 +71,7 @@ void buildGraph(GraphData *graph, char *graphFile) {
     delete []node_matrix;
 }
 
-int getSourceVertices(int *sourceVertices, char *sourceFile) {
+int getSourceVertices(int **sourceVertices, char *sourceFile) {
     int sourceCount = 0;
     std::vector<int> src_node;
     std::ifstream infile;
@@ -100,8 +100,8 @@ int getSourceVertices(int *sourceVertices, char *sourceFile) {
 	assert(sourceCount == src_node.size());
     infile.close();
 
-    sourceVertices = (int *)malloc(sizeof(int) * sourceCount);
-    std::copy(src_node.begin(), src_node.end(), sourceVertices);
+    *sourceVertices = (int *)malloc(sizeof(int) * sourceCount);
+    std::copy(src_node.begin(), src_node.end(), *sourceVertices);
     return sourceCount;
 }
 
@@ -165,7 +165,7 @@ int main(int argc, char **argv) {
 
     int sourceNum;
     int *sourceVertices;
-    sourceNum = getSourceVertices(sourceVertices, srcFile);
+    sourceNum = getSourceVertices(&sourceVertices, srcFile);
     assert(sourceNum > 0);
 
     long long *results = (long long *)malloc(sizeof(long long) * sourceNum * graph.vertexCount);

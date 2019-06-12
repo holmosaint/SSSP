@@ -11,6 +11,22 @@
 
 using namespace std;
 
+#define checkError(a, b) checkErrorFileLine(a, b, __FILE__ , __LINE__)
+
+/*
+ * Check for error condition and exit if found.  Print file and line number
+ * of error. (from NVIDIA SDK)
+ */ 
+void checkErrorFileLine(int errNum, int expected, const char* file, const int lineNumber)
+{
+    if (errNum != expected)
+    {
+        cerr << "Line " << lineNumber << " in File " << file << endl;
+        exit(1);
+    }
+}
+
+
 /*
  * global variable
  */
@@ -33,6 +49,100 @@ cl_device_id getDev(cl_context cxGPUContext, unsigned int nr) {
     free(cdDevices);
 
     return device;
+}
+
+/*
+ * Gets the id of the first device from the context (from the NVIDIA SDK)
+ */
+cl_device_id getFirstDev(cl_context cxGPUContext)
+{
+    size_t szParmDataBytes;
+    cl_device_id* cdDevices;
+
+    // get the list of GPU devices associated with context
+    clGetContextInfo(cxGPUContext, CL_CONTEXT_DEVICES, 0, NULL, &szParmDataBytes);
+    cdDevices = (cl_device_id*) malloc(szParmDataBytes);
+
+    clGetContextInfo(cxGPUContext, CL_CONTEXT_DEVICES, szParmDataBytes, cdDevices, NULL);
+
+    cl_device_id first = cdDevices[0];
+    free(cdDevices);
+
+    return first;
+}
+
+/*
+ * Allocate memory for input CUDA buffers and copy the data into device memory
+ */
+void allocateOCLBuffers(cl_context gpuContext, cl_command_queue commandQueue, GraphData *graph,
+                        cl_mem *vertexArrayDevice, cl_mem *edgeArrayDevice, cl_mem *weightArrayDevice,
+                        cl_mem *maskArrayDevice, cl_mem *costArrayDevice, cl_mem *updatingCostArrayDevice,
+                        size_t globalWorkSize)
+{
+    cl_int errNum;
+    cl_mem hostVertexArrayBuffer;
+    cl_mem hostEdgeArrayBuffer;
+    cl_mem hostWeightArrayBuffer;
+
+    // First, need to create OpenCL Host buffers that can be copied to device buffers
+    hostVertexArrayBuffer = clCreateBuffer(gpuContext, CL_MEM_COPY_HOST_PTR | CL_MEM_ALLOC_HOST_PTR,
+                                           sizeof(int) * graph->vertexCount, graph->vertexArray, &errNum);
+    checkError(errNum, CL_SUCCESS);
+
+    hostEdgeArrayBuffer = clCreateBuffer(gpuContext, CL_MEM_COPY_HOST_PTR | CL_MEM_ALLOC_HOST_PTR,
+                                           sizeof(int) * graph->edgeCount, graph->edgeArray, &errNum);
+    checkError(errNum, CL_SUCCESS);
+
+    hostWeightArrayBuffer = clCreateBuffer(gpuContext, CL_MEM_COPY_HOST_PTR | CL_MEM_ALLOC_HOST_PTR,
+                                           sizeof(float) * graph->edgeCount, graph->weightArray, &errNum);
+    checkError(errNum, CL_SUCCESS);
+
+    // Now create all of the GPU buffers
+    *vertexArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_ONLY, sizeof(int) * globalWorkSize, NULL, &errNum);
+    checkError(errNum, CL_SUCCESS);
+    *edgeArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_ONLY, sizeof(int) * graph->edgeCount, NULL, &errNum);
+    checkError(errNum, CL_SUCCESS);
+    *weightArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_ONLY, sizeof(float) * graph->edgeCount, NULL, &errNum);
+    checkError(errNum, CL_SUCCESS);
+    *maskArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(int) * globalWorkSize, NULL, &errNum);
+    checkError(errNum, CL_SUCCESS);
+    *costArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(float) * globalWorkSize, NULL, &errNum);
+    checkError(errNum, CL_SUCCESS);
+    *updatingCostArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(float) * globalWorkSize, NULL, &errNum);
+    checkError(errNum, CL_SUCCESS);
+
+    // Now queue up the data to be copied to the device
+    errNum = clEnqueueCopyBuffer(commandQueue, hostVertexArrayBuffer, *vertexArrayDevice, 0, 0,
+                                 sizeof(int) * graph->vertexCount, 0, NULL, NULL);
+    checkError(errNum, CL_SUCCESS);
+
+    errNum = clEnqueueCopyBuffer(commandQueue, hostEdgeArrayBuffer, *edgeArrayDevice, 0, 0,
+                                 sizeof(int) * graph->edgeCount, 0, NULL, NULL);
+    checkError(errNum, CL_SUCCESS);
+
+    errNum = clEnqueueCopyBuffer(commandQueue, hostWeightArrayBuffer, *weightArrayDevice, 0, 0,
+                                 sizeof(float) * graph->edgeCount, 0, NULL, NULL);
+    checkError(errNum, CL_SUCCESS);
+
+    clReleaseMemObject(hostVertexArrayBuffer);
+    clReleaseMemObject(hostEdgeArrayBuffer);
+    clReleaseMemObject(hostWeightArrayBuffer);
+}
+
+/*
+ * Initialize OpenCL buffers for single run of Dijkstra
+ */
+void initializeOCLBuffers(cl_command_queue commandQueue, cl_kernel initializeKernel, GraphData *graph,
+                          size_t maxWorkGroupSize)
+{
+    cl_int errNum;
+    // Set # of work items in work group and total in 1 dimensional range
+    size_t localWorkSize = maxWorkGroupSize;
+    size_t globalWorkSize = roundWorkSizeUp(localWorkSize, graph->vertexCount);
+
+    errNum = clEnqueueNDRangeKernel(commandQueue, initializeKernel, 1, NULL, &globalWorkSize, &localWorkSize,
+                                    0, NULL, NULL);
+    checkError(errNum, CL_SUCCESS);
 }
 
 

@@ -134,6 +134,11 @@ int main(int argc, char **argv) {
     }
 
     // create the OpenCL context on GPU devices
+    cl_context_properties properties[3];
+    // context properties list -- must be terminated with 0
+    properties[0] = CL_CONTEXT_PLATFORM;    // specifies the platform to use
+    properties[1] = (cl_context_properties) platform;
+    properties[2] = 0;
     gpuContext = clCreateContextFromType(0, CL_DEVICE_TYPE_GPU, NULL, NULL, &errNum);
     if(errNum != CL_SUCCESS) {
         printf("No GPU devices found.\n");
@@ -162,8 +167,9 @@ int main(int argc, char **argv) {
 
     long long *results = (long long *)malloc(sizeof(long long) * sourceNum * graph.vertexCount);
     t = clock();
-    runDijkstraMultiGPUandCPU(gpuContext, cpuContext, &graph, sourceVertices,
-                                                      results, sourceNum);
+    // runDijkstraMultiGPUandCPU(gpuContext, cpuContext, &graph, sourceVertices,
+    //                                                   results, sourceNum);
+    runDijkstraMultiGPU(gpuContext, &graph, sourceVertices, results, sourceNum);
     printf("Processing time: %.2f\n", (clock() - t) * 1.0 / CLOCKS_PER_SEC);
 
     releaseGraph(&graph);

@@ -1,5 +1,5 @@
 // to initialize the buffer
-__kernel void initializeBuffers(__global int *maskArray, __global long *costArray, __global long *updatingCostArray, int sourceVertex, int vertexCount) {
+__kernel void initializeBuffers(__global int *maskArray, __global long long *costArray, __global long long *updatingCostArray, int sourceVertex, int vertexCount) {
     int tid = get_global_id(0);
 
     if(sourceVertex == tid) {
@@ -17,10 +17,10 @@ __kernel void initializeBuffers(__global int *maskArray, __global long *costArra
 // first phase
 __kernel void DijkstraKernel1(__global int *vertexArray,
                               __global int *edgeArray,
-                              __global long *weightArray,
+                              __global long long *weightArray,
                               __global int *maskArray,
-                              __global long *costArray, 
-                              __global long *updatingCostArray,
+                              __global long long *costArray, 
+                              __global long long *updatingCostArray,
                               int vertexCount, 
                               int edgeCount) {
     int tid = get_global_id(0);
@@ -46,10 +46,10 @@ __kernel void DijkstraKernel1(__global int *vertexArray,
 // second phase
 __kernel void DijkstraKernel2(__global int *vertexArray, 
                               __global int *edgeArray, 
-                              __global long *weightArray, 
+                              __global long long *weightArray, 
                               __global int *maskArray, 
-                              __global long *costArray, 
-                              __global long *updatingCostArray, 
+                              __global long long *costArray, 
+                              __global long long *updatingCostArray, 
                               int vertexCount) {
     int tid = get_global_id(0);
 

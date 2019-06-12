@@ -1,4 +1,5 @@
 #include <CL/cl.h>
+#include "graph.h"
 
 typedef struct
 {

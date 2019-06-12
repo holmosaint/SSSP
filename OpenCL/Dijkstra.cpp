@@ -19,6 +19,12 @@ using namespace std;
  * Number of async loop iterations before attempting to read results back
  */
 #define NUM_ASYNCHRONOUS_ITERATIONS 10
+
+/*
+ * function declaration
+ */
+int roundWorkSizeUp(int groupSize, int globalSize);
+
 /*
  * Check for error condition and exit if found.  Print file and line number
  * of error. (from NVIDIA SDK)
@@ -336,7 +342,7 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
         }
 
         // Initialize mask array to false, C and U to infiniti
-        initializeOCLBuffers(commandQueue, initializeOCLBuffersKernel, graph, maxWorkGroupSize);
+        initializeOCLBuffers(commandQueue, initializeBuffersKernel, graph, maxWorkGroupSize);
 
         // Read mask array from device -> host
         cl_event readDone;

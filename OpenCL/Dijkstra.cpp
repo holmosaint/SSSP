@@ -134,9 +134,9 @@ void allocateOCLBuffers(cl_context gpuContext, cl_command_queue commandQueue, Gr
     checkError(errNum, CL_SUCCESS);
     *maskArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(int) * globalWorkSize, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
-    *costArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(long long) * globalWorkSize, NULL, &errNum);
+    *costArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(int) * globalWorkSize, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
-    *updatingCostArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(long long) * globalWorkSize, NULL, &errNum);
+    *updatingCostArrayDevice = clCreateBuffer(gpuContext, CL_MEM_READ_WRITE, sizeof(int) * globalWorkSize, NULL, &errNum);
     checkError(errNum, CL_SUCCESS);
 
     // Now queue up the data to be copied to the device
@@ -235,7 +235,7 @@ cl_program loadAndBuildProgram(cl_context gpuContext, const char *fileName) {
  * (numResults / N) searches per device.
  * */
 
-void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, int *sourceVertices, long long *outResultCosts, int numResults) {
+void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, int *sourceVertices, int *outResultCosts, int numResults) {
     cl_int errNum;
     cl_command_queue commandQueue;
     commandQueue = clCreateCommandQueue(context, deviceId, 0, &errNum);
@@ -395,7 +395,7 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
         }
 
         // copy the results back
-        errNum = clEnqueueReadBuffer(commandQueue, costArrayDevice, CL_FALSE, 0, sizeof(long long) * graph->vertexCount, 
+        errNum = clEnqueueReadBuffer(commandQueue, costArrayDevice, CL_FALSE, 0, sizeof(int) * graph->vertexCount, 
                         &outResultCosts[i * graph->vertexCount], 0, NULL, &readDone);
                     
         if(errNum != CL_SUCCESS) {
@@ -428,7 +428,7 @@ void dijkstraThread(DevicePlan *plan) {
 }
 
 void runDijkstraMultiGPU( cl_context gpuContext, GraphData* graph, int *sourceVertices,
-                          long long *outResultCosts, int numResults )
+                          int *outResultCosts, int numResults )
 {
 
     // Find out how many GPU's to compute on all available GPUs
@@ -489,7 +489,7 @@ void runDijkstraMultiGPU( cl_context gpuContext, GraphData* graph, int *sourceVe
 }
 
 void runDijkstraMultiGPUandCPU( cl_context gpuContext, cl_context cpuContext, GraphData* graph, 
-                                int *sourceVertices, long long *outResultCosts, int numResults) {
+                                int *sourceVertices, int *outResultCosts, int numResults) {
     float ratioCPUtoGPU = 2.26;     // CPU seems to run it at 2.26X on GT120 GPU
     
     // Find out how many GPU's to compute on all available GPUs

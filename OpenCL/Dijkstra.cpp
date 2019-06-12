@@ -207,7 +207,7 @@ cl_program loadAndBuildProgram(cl_context gpuContext, const char *fileName) {
     program = clCreateProgramWithSource(gpuContext, 1, (const char **)&source, NULL, &errNum);
     if(errNum != CL_SUCCESS) {
         char cBuildLog[10240];
-        clGetProgramBuildInfo(program, getFirstDev(gpuContext, CL_PROGRAM_BUILD_LOG, sizeof(cBuildLog), cBuildLog, NULL);
+        clGetProgramBuildInfo(program, getFirstDev(gpuContext), CL_PROGRAM_BUILD_LOG, sizeof(cBuildLog), cBuildLog, NULL);
         cerr << cBuildLog << endl;
         printf("Error: can not build program from source.\n");
         exit(1);

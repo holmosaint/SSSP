@@ -5,15 +5,20 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include <CL/cl.h>
 #include "graph.h"
 #include "device.h"
 #include "Dijkstra.h"
+#include <CL/cl.h>
 
 using namespace std;
 
 #define checkError(a, b) checkErrorFileLine(a, b, __FILE__ , __LINE__)
 
+/*
+ * Macro Options
+ * Number of async loop iterations before attempting to read results back
+ */
+#define NUM_ASYNCHRONOUS_ITERATIONS 10
 /*
  * Check for error condition and exit if found.  Print file and line number
  * of error. (from NVIDIA SDK)
@@ -25,6 +30,23 @@ void checkErrorFileLine(int errNum, int expected, const char* file, const int li
         cerr << "Line " << lineNumber << " in File " << file << endl;
         exit(1);
     }
+}
+
+/*
+ * Check whether the mask array is empty.  This tells the algorithm whether
+ * it needs to continue running or not.
+ */
+bool maskArrayEmpty(int *maskArray, int count)
+{
+    for(int i = 0; i < count; i++ )
+    {
+        if (maskArray[i] == 1)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 
@@ -332,7 +354,7 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
             // without reading the results.  This might result in running more iterations
             // than necessary at times, but it will in most cases be faster because
             // we are doing less stalling of the GPU waiting for results.
-            for(int asynIter = 0; asynIter < NUM_ASYNCHRONOUS_ITERATIONS; ++asyncIter) {
+            for(int asynIter = 0; asynIter < NUM_ASYNCHRONOUS_ITERATIONS; ++asynIter) {
                 size_t localWorkSize = maxWorkGroupSize;
                 size_t globalWorkSize = roundWorkSizeUp(localWorkSize, graph->vertexCount);
 

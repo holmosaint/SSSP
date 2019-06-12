@@ -336,7 +336,7 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
         }
 
         // Initialize mask array to false, C and U to infiniti
-        initializeOCLBuffers(commandQueue, initializeOCLBuffers, graph, maxWorkGroupSize);
+        initializeOCLBuffers(commandQueue, initializeOCLBuffersKernel, graph, maxWorkGroupSize);
 
         // Read mask array from device -> host
         cl_event readDone;

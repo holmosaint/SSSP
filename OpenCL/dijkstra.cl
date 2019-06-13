@@ -1,5 +1,5 @@
 // to initialize the buffer
-__kernel void initializeBuffers(__global int *maskArray, __global int *costArray, __global int *updatingCostArray, int sourceVertex, int vertexCount) {
+__kernel void initializeBuffers(__global int *maskArray, __global long *costArray, __global long *updatingCostArray, int sourceVertex, int vertexCount) {
     int tid = get_global_id(0);
 
     if(sourceVertex == tid) {
@@ -19,8 +19,8 @@ __kernel void DijkstraKernel1(__global int *vertexArray,
                               __global int *edgeArray,
                               __global int *weightArray,
                               __global int *maskArray,
-                              __global int *costArray, 
-                              __global int *updatingCostArray,
+                              __global long *costArray, 
+                              __global long *updatingCostArray,
                               int vertexCount, 
                               int edgeCount) {
     int tid = get_global_id(0);
@@ -36,9 +36,10 @@ __kernel void DijkstraKernel1(__global int *vertexArray,
 
         for(int edge = edgeStart; edge < edgeEnd; ++edge) {
             int nid = edgeArray[edge];
-
-            if(updatingCostArray[nid] > costArray[tid] + weightArray[edge])
-                updatingCostArray[nid] = costArray[tid] + weightArray[edge];
+            long update = updatingCostArray[nid];
+            long new_cost = costArray[tid] + weightArray[edge];
+            if(update > new_cost)
+                updatingCostArray[nid] = new_cost;
         }
     }
 }
@@ -48,8 +49,8 @@ __kernel void DijkstraKernel2(__global int *vertexArray,
                               __global int *edgeArray, 
                               __global int *weightArray, 
                               __global int *maskArray, 
-                              __global int *costArray, 
-                              __global int *updatingCostArray, 
+                              __global long *costArray, 
+                              __global long *updatingCostArray, 
                               int vertexCount) {
     int tid = get_global_id(0);
 

@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
     result_file.open(resFile, std::ios::out | std::ios::trunc);
 	int offset = 0;
     for(int i = 0;i < sourceNum; ++i) {
-		long long dis = 0;
+		long dis = 0;
 		for(int j = 0; j < graph.vertexCount; ++j) {
 			dis += results[offset + j];
 		}

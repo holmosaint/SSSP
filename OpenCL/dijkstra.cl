@@ -26,7 +26,6 @@ __kernel void initializeBuffers(__global int *maskArray, __global long *costArra
 			int nid = edgeArray[mid];
 			if(nid == sourceVertex) {
 				maskArray[tid] = 1;
-				// printf("Tid %d mask 1.\n", tid);
 				break;
 			}
 			if(nid < sourceVertex) {
@@ -34,14 +33,6 @@ __kernel void initializeBuffers(__global int *maskArray, __global long *costArra
 			}
 			else end = mid;
 		}
-
-        /* for(int edge = edgeStart; edge < edgeEnd; ++edge) {
-            int nid = edgeArray[edge];
-			if(nid == sourceVertex) {
-	            maskArray[tid] = 1;
-				break;
-			}
-        }*/
         costArray[tid] = LONG_MAX;
         updatingCostArray[tid] = LONG_MAX;
     }
@@ -72,8 +63,10 @@ __kernel void DijkstraKernel1(__global int *vertexArray,
             int nid = edgeArray[edge];
 			if(costArray[nid] == LONG_MAX)
 				continue;
-            if(updatingCostArray[tid] > costArray[nid] + weightArray[edge]) {
-				updatingCostArray[tid] = costArray[nid] + weightArray[edge];
+            long update = updatingCostArray[tid];
+            long new_cost = costArray[nid] + weightArray[edge];
+            if(update > new_cost) {
+				updatingCostArray[tid] = new_cost;
 			}
         }
     }
@@ -103,7 +96,5 @@ __kernel void DijkstraKernel2(__global int *vertexArray,
             maskArray[nid] = 1;
         }
     }
-	// else maskArray[tid] = 1;
-
-    updatingCostArray[tid] = costArray[tid];
+    else updatingCostArray[tid] = costArray[tid];
 }

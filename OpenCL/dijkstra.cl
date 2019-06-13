@@ -9,8 +9,8 @@ __kernel void initializeBuffers(__global int *maskArray, __global int *costArray
     }
     else {
         maskArray[tid] = 0;
-        costArray[tid] = LONG_MAX;
-        updatingCostArray[tid] = LONG_MAX;
+        costArray[tid] = INT_MAX;
+        updatingCostArray[tid] = INT_MAX;
     }
 }
 

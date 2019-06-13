@@ -168,12 +168,12 @@ int main(int argc, char **argv) {
     sourceNum = getSourceVertices(&sourceVertices, srcFile);
     assert(sourceNum > 0);
 
-    int *results = (int *)malloc(sizeof(int) * sourceNum * graph.vertexCount);
+    long *results = (long *)malloc(sizeof(long) * sourceNum * graph.vertexCount);
     t = clock();
     // runDijkstraMultiGPUandCPU(gpuContext, cpuContext, &graph, sourceVertices,
     //                                                   results, sourceNum);
     runDijkstraMultiGPU(gpuContext, &graph, sourceVertices, results, sourceNum);
-    printf("Processing time: %.2f\n", (clock() - t) * 1.0 / CLOCKS_PER_SEC);
+    printf("Processing time: %.2f\n", (clock() - t) * 1.0 / CLOCKS_PER_SEC / sourceNum);
     
     std::ofstream result_file;
     char resFile[50];

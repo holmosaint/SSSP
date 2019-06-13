@@ -9,8 +9,8 @@ __kernel void initializeBuffers(__global int *maskArray, __global long *costArra
     }
     else {
         maskArray[tid] = 0;
-        costArray[tid] = INT_MAX;
-        updatingCostArray[tid] = INT_MAX;
+        costArray[tid] = LONG_MAX;
+        updatingCostArray[tid] = LONG_MAX;
     }
 }
 
@@ -45,13 +45,13 @@ __kernel void DijkstraKernel1(__global int *vertexArray,
 }
 
 // second phase
-__kernel void DijkstraKernel2(__global int *vertexArray, 
-                              __global int *edgeArray, 
-                              __global int *weightArray, 
-                              __global int *maskArray, 
-                              __global long *costArray, 
-                              __global long *updatingCostArray, 
-                              int vertexCount) {
+__kernel void DijkstraKernel2(__global int *vertexArray,
+                              __global int *edgeArray,
+                              __global int *weightArray,
+                              __global int *maskArray,
+                              __global long *costArray,
+                              __global long *updatingCostArray,
+                              int vertexCount)  {
     int tid = get_global_id(0);
 
     if(costArray[tid] > updatingCostArray[tid]) {
@@ -59,5 +59,5 @@ __kernel void DijkstraKernel2(__global int *vertexArray,
         maskArray[tid] = 1;
     }
 
-    else updatingCostArray[tid] = costArray[tid];
+    updatingCostArray[tid] = costArray[tid];
 }

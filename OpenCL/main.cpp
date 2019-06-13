@@ -166,6 +166,7 @@ int main(int argc, char **argv) {
     int sourceNum;
     int *sourceVertices;
     sourceNum = getSourceVertices(&sourceVertices, srcFile);
+    prinf("Source count: %d\n", sourceNum);
     assert(sourceNum > 0);
 
     long *results = (long *)malloc(sizeof(long) * sourceNum * graph.vertexCount);
@@ -190,6 +191,7 @@ int main(int argc, char **argv) {
 		result_file << "ss " << dis << std::endl;
     }
 	result_file.close();
+    assert(offset == sourceNum * graph.vertexCount);
 
     releaseGraph(&graph);
     free(sourceVertices);

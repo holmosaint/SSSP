@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
     sourceNum = getSourceVertices(&sourceVertices, srcFile);
     assert(sourceNum > 0);
 
-    int *results = (int *)malloc(sizeof(int) * sourceNum * graph.vertexCount);
+    long *results = (long *)malloc(sizeof(long) * sourceNum * graph.vertexCount);
     t = clock();
     // runDijkstraMultiGPUandCPU(gpuContext, cpuContext, &graph, sourceVertices,
     //                                                   results, sourceNum);

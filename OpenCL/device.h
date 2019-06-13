@@ -19,7 +19,7 @@ typedef struct
     int *endVertices;
             
     // Results of processing
-    int *outResultCosts;
+    long *outResultCosts;
             
     // Number of results
     int numResults;                                         

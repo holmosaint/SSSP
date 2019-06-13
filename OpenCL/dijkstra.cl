@@ -1,16 +1,31 @@
 // to initialize the buffer
-__kernel void initializeBuffers(__global int *maskArray, __global long *costArray, __global long *updatingCostArray, int sourceVertex, int vertexCount) {
+__kernel void initializeBuffers(__global int *maskArray, __global long *costArray, __global long *updatingCostArray, __global int *vertexArray,
+            __global int *edgeArray,
+            __global int *weightArray,
+			int sourceVertex, int vertexCount, int edgeCount) {
     int tid = get_global_id(0);
 
     if(sourceVertex == tid) {
-        maskArray[tid] = 1;
+        maskArray[tid] = 0;
         costArray[tid] = 0;
         updatingCostArray[tid] = 0;
+
+		int edgeStart = vertexArray[tid];
+        int edgeEnd;
+        if(tid + 1 < vertexCount)
+            edgeEnd = vertexArray[tid + 1];
+        else edgeEnd = edgeCount;
+
+        for(int edge = edgeStart; edge < edgeEnd; ++edge) {
+            int nid = edgeArray[edge];
+            maskArray[nid] = 1;
+        }
+
     }
     else {
         maskArray[tid] = 0;
-        costArray[tid] = INT_MAX;
-        updatingCostArray[tid] = INT_MAX;
+        costArray[tid] = 0x3fffffff;
+        updatingCostArray[tid] = 0x3fffffff;
     }
 }
 
@@ -34,12 +49,12 @@ __kernel void DijkstraKernel1(__global int *vertexArray,
             edgeEnd = vertexArray[tid + 1];
         else edgeEnd = edgeCount;
 
+		bool update = false;
         for(int edge = edgeStart; edge < edgeEnd; ++edge) {
             int nid = edgeArray[edge];
-            long update = updatingCostArray[nid];
-            long new_cost = costArray[tid] + weightArray[edge];
-            if(update > new_cost)
-                updatingCostArray[nid] = new_cost;
+            if(updatingCostArray[tid] > costArray[nid] + weightArray[edge]) {
+				updatingCostArray[tid] = costArray[nid] + weightArray[edge];
+			}
         }
     }
 }
@@ -51,13 +66,24 @@ __kernel void DijkstraKernel2(__global int *vertexArray,
                               __global int *maskArray, 
                               __global long *costArray, 
                               __global long *updatingCostArray, 
-                              int vertexCount) {
+                              int vertexCount, int edgeCount) {
     int tid = get_global_id(0);
 
     if(costArray[tid] > updatingCostArray[tid]) {
         costArray[tid] = updatingCostArray[tid];
-        maskArray[tid] = 1;
-    }
+		
+		int edgeStart = vertexArray[tid];
+        int edgeEnd;
+        if(tid + 1 < vertexCount)
+            edgeEnd = vertexArray[tid + 1];
+        else edgeEnd = edgeCount;
 
-    else updatingCostArray[tid] = costArray[tid];
+		for(int edge = edgeStart; edge < edgeEnd; ++edge) {
+	        int nid = edgeArray[edge];
+            maskArray[nid] = 1;
+        }
+    }
+	// else maskArray[tid] = 1;
+
+    updatingCostArray[tid] = costArray[tid];
 }

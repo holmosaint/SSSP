@@ -57,6 +57,7 @@ void buildGraph(GraphData *graph, char *graphFile) {
     graph->weightArray = (int *)malloc(sizeof(int) * arc_cnt);
 
     int offset = 0;
+	int max_edge = 0;
     for(int i = 0;i < v_cnt; ++i) {
         // vertex array
         graph->vertexArray[i] = offset;
@@ -64,10 +65,12 @@ void buildGraph(GraphData *graph, char *graphFile) {
         for(int j = 0;j < arc_num; ++j) {
             graph->edgeArray[offset + j] = node_matrix[i][j].id;
             graph->weightArray[offset + j] = node_matrix[i][j].dis;
+			if( node_matrix[i][j].dis > max_edge)
+				max_edge =  node_matrix[i][j].dis;
         }
         offset += arc_num;
     }
-
+	printf("Max weight: %d\n", max_edge);
     delete []node_matrix;
 }
 
@@ -166,6 +169,7 @@ int main(int argc, char **argv) {
     int sourceNum;
     int *sourceVertices;
     sourceNum = getSourceVertices(&sourceVertices, srcFile);
+	printf("Source count: %d\n", sourceNum);
     assert(sourceNum > 0);
 
     long *results = (long *)malloc(sizeof(long) * sourceNum * graph.vertexCount);
@@ -183,13 +187,21 @@ int main(int argc, char **argv) {
 	int offset = 0;
     for(int i = 0;i < sourceNum; ++i) {
 		long dis = 0;
+		int cur_src = sourceVertices[i];
+		assert(results[offset + cur_src] == 0);
 		for(int j = 0; j < graph.vertexCount; ++j) {
+			assert(results[offset + j] >= 0);
+			if(results[offset + j] == 2147483647) {
+				printf("Wow!\n");
+				continue;
+			}
 			dis += results[offset + j];
 		}
 		offset += graph.vertexCount;
 		result_file << "ss " << dis << std::endl;
     }
 	result_file.close();
+	assert(offset == sourceNum * graph.vertexCount);
 
     releaseGraph(&graph);
     free(sourceVertices);

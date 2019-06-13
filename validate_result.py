@@ -1,4 +1,4 @@
-result_file = open("./result.CTR.txt", "r")
+result_file = open("./NE-result.txt", "r")
 gt_file = open("./script/ch9-1.1/results/USA-road-d.ss.res", "r")
 
 result = []
@@ -14,7 +14,7 @@ target = False
 for line in gt_file.readlines():
     line = line[:-1].split()
     if line[0] == 'f':
-        if line[-1].endswith("CTR.ss"):
+        if line[-1].endswith("NE.ss"):
             target = True
         else:
             target = False
@@ -27,7 +27,8 @@ print("Result length: {}".format(len(result)))
 print("gt length: {}".format(len(gt)))
 assert len(gt) == len(result)
 for i in range(len(gt)):
-    assert gt[i] == result[i]
+    if gt[i] != result[i]:
+        print("gt: {}, result: {}".format(gt[i], result[i]))
 
 result_file.close()
 gt_file.close()

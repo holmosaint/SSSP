@@ -18,7 +18,7 @@ Result:
 
 | Dataset | NY | NE | CTR |
 |---|---|---|---|
-| Serial | 0.27vim s | 2.37s | 88.50s |
+| Serial | 0.27s | 2.37s | 88.50s |
 
 
 

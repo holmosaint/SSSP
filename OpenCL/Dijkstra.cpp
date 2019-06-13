@@ -239,7 +239,6 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
     cl_int errNum;
     cl_command_queue commandQueue;
     commandQueue = clCreateCommandQueue(context, deviceId, 0, &errNum);
-    printf("Create command queue for device %d at 0x%x\n", deviceId, &commandQueue);
     if(errNum != CL_SUCCESS) {
         printf("ErrorL: Can not build command queue!\n");
         exit(1);

@@ -23,8 +23,8 @@ void buildGraph(GraphData *graph, char *graphFile) {
     printf("Graph file: %s\n", graphFile);
 	infile.open(graphFile, std::ios::in);
 	if (!infile.is_open()) {
-            printf("Can not open the gr file!\n");
-            exit(1);
+        printf("Can not open the gr file!\n");
+        exit(1);
 	}
 	std::string line;
 	int v_cnt, arc_cnt;
@@ -173,7 +173,7 @@ int main(int argc, char **argv) {
     // runDijkstraMultiGPUandCPU(gpuContext, cpuContext, &graph, sourceVertices,
     //                                                   results, sourceNum);
     runDijkstraMultiGPU(gpuContext, &graph, sourceVertices, results, sourceNum);
-    printf("Processing time: %.2f\n", (clock() - t) * 1.0 / CLOCKS_PER_SEC);
+    printf("Processing time: %.2f\n", (clock() - t) * 1.0 / CLOCKS_PER_SEC / sourceNum);
     
     std::ofstream result_file;
     char resFile[50];

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdio.h>
+#include <algorithm>
 #include <vector>
 #include <deque>
 #include <assert.h>
@@ -17,6 +18,10 @@ struct node_struct {
 	int dis;
 	node_struct(int _id, int _dis) :id(_id), dis(_dis) {}
 };
+
+bool operator < (const node_struct &a1, const node_struct &a2) {
+    return a1.dis < a2.dis;
+}
 
 void buildGraph(GraphData *graph, char *graphFile) {
     std::ifstream infile;
@@ -62,6 +67,7 @@ void buildGraph(GraphData *graph, char *graphFile) {
         // vertex array
         graph->vertexArray[i] = offset;
         int arc_num = node_matrix[i].size();
+        sort(node_matrix[i].begin(), node_matrix[i].end());
         for(int j = 0;j < arc_num; ++j) {
             graph->edgeArray[offset + j] = node_matrix[i][j].id;
             graph->weightArray[offset + j] = node_matrix[i][j].dis;

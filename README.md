@@ -4,7 +4,7 @@ For 2019 Parallel Course Project
 ## Serial Implementation
 Use Dijkastra algorithm with Fibonacci heap.
 
-| Dataset | NE | NY | CTR |
+| Dataset | NY | NE | CTR |
 |---|---|---|---|
 | Serial | 1.51s | 10.05s | 124.65s |
 
@@ -14,7 +14,11 @@ Compile method:
 gcc -o main -I$ATISTREAMSDKROOT/include -L$ATISTREAMSDKROOT/lib/x86_64 main.cpp Dijkstra.cpp -lOpenCL -lstdc++ -lpthread
 ```
 
+Result:
 
+| Dataset | NY | NE | CTR |
+|---|---|---|---|
+| Serial | 0.27vim s | 2.37s | 88.50s |
 
 
 

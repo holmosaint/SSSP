@@ -1,16 +1,36 @@
 // to initialize the buffer
-__kernel void initializeBuffers(__global int *maskArray, __global long *costArray, __global long *updatingCostArray, int sourceVertex, int vertexCount) {
+__kernel void initializeBuffers(__global int *maskArray, __global long *costArray, __global long *updatingCostArray, __global int *vertexArray,
+            __global int *edgeArray,
+            __global int *weightArray,
+			int sourceVertex, int vertexCount, int edgeCount) {
     int tid = get_global_id(0);
 
     if(sourceVertex == tid) {
-        maskArray[tid] = 1;
+        maskArray[tid] = 0;
         costArray[tid] = 0;
         updatingCostArray[tid] = 0;
+
+		int edgeStart = vertexArray[tid];
+        int edgeEnd;
+        if(tid + 1 < vertexCount)
+            edgeEnd = vertexArray[tid + 1];
+        else edgeEnd = edgeCount;
+
+        for(int edge = edgeStart; edge < edgeEnd; ++edge) {
+            int nid = edgeArray[edge];
+            maskArray[nid] = 1;
+        }
+
     }
     else {
         maskArray[tid] = 0;
+<<<<<<< HEAD
         costArray[tid] = LONG_MAX;
         updatingCostArray[tid] = LONG_MAX;
+=======
+        costArray[tid] = 0x3fffffff;
+        updatingCostArray[tid] = 0x3fffffff;
+>>>>>>> ad168b7dba88f056e9b290d0cc84db80c9b94934
     }
 }
 
@@ -34,17 +54,18 @@ __kernel void DijkstraKernel1(__global int *vertexArray,
             edgeEnd = vertexArray[tid + 1];
         else edgeEnd = edgeCount;
 
+		bool update = false;
         for(int edge = edgeStart; edge < edgeEnd; ++edge) {
             int nid = edgeArray[edge];
-            long update = updatingCostArray[nid];
-            long new_cost = costArray[tid] + weightArray[edge];
-            if(update > new_cost)
-                updatingCostArray[nid] = new_cost;
+            if(updatingCostArray[tid] > costArray[nid] + weightArray[edge]) {
+				updatingCostArray[tid] = costArray[nid] + weightArray[edge];
+			}
         }
     }
 }
 
 // second phase
+<<<<<<< HEAD
 __kernel void DijkstraKernel2(__global int *vertexArray,
                               __global int *edgeArray,
                               __global int *weightArray,
@@ -52,12 +73,32 @@ __kernel void DijkstraKernel2(__global int *vertexArray,
                               __global long *costArray,
                               __global long *updatingCostArray,
                               int vertexCount)  {
+=======
+__kernel void DijkstraKernel2(__global int *vertexArray, 
+                              __global int *edgeArray, 
+                              __global int *weightArray, 
+                              __global int *maskArray, 
+                              __global long *costArray, 
+                              __global long *updatingCostArray, 
+                              int vertexCount, int edgeCount) {
+>>>>>>> ad168b7dba88f056e9b290d0cc84db80c9b94934
     int tid = get_global_id(0);
 
     if(costArray[tid] > updatingCostArray[tid]) {
         costArray[tid] = updatingCostArray[tid];
-        maskArray[tid] = 1;
+		
+		int edgeStart = vertexArray[tid];
+        int edgeEnd;
+        if(tid + 1 < vertexCount)
+            edgeEnd = vertexArray[tid + 1];
+        else edgeEnd = edgeCount;
+
+		for(int edge = edgeStart; edge < edgeEnd; ++edge) {
+	        int nid = edgeArray[edge];
+            maskArray[nid] = 1;
+        }
     }
+	// else maskArray[tid] = 1;
 
     updatingCostArray[tid] = costArray[tid];
 }

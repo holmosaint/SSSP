@@ -288,7 +288,11 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
     errNum |= clSetKernelArg(initializeBuffersKernel, 0, sizeof(cl_mem), &maskArrayDevice);
     errNum |= clSetKernelArg(initializeBuffersKernel, 1, sizeof(cl_mem), &costArrayDevice);
     errNum |= clSetKernelArg(initializeBuffersKernel, 2, sizeof(cl_mem), &updatingCostArrayDevice);
-    errNum |= clSetKernelArg(initializeBuffersKernel, 4, sizeof(int), &graph->vertexCount);
+	errNum |= clSetKernelArg(initializeBuffersKernel, 3, sizeof(cl_mem), &vertexArrayDevice);
+	errNum |= clSetKernelArg(initializeBuffersKernel, 4, sizeof(cl_mem), &edgeArrayDevice);
+	errNum |= clSetKernelArg(initializeBuffersKernel, 5, sizeof(cl_mem), &weightArrayDevice);
+    errNum |= clSetKernelArg(initializeBuffersKernel, 7, sizeof(int), &graph->vertexCount);
+	errNum |= clSetKernelArg(initializeBuffersKernel, 8, sizeof(int), &graph->edgeCount);
     if(errNum != CL_SUCCESS) {
         printf("Error: can not set args for initialize Buffers Kernel.\n");
         exit(1);
@@ -329,6 +333,7 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
     errNum |= clSetKernelArg(ssspKernel2, 4, sizeof(cl_mem), &costArrayDevice);
     errNum |= clSetKernelArg(ssspKernel2, 5, sizeof(cl_mem), &updatingCostArrayDevice);
     errNum |= clSetKernelArg(ssspKernel2, 6, sizeof(int), &graph->vertexCount);
+	errNum |= clSetKernelArg(ssspKernel2, 7, sizeof(int), &graph->edgeCount);
     if(errNum != CL_SUCCESS) {
         printf("Error: can not set args for kernel 2.\n");
         exit(1);
@@ -337,9 +342,9 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
     int *maskArrayHost = (int *) malloc(sizeof(int) * graph->vertexCount);
 
     for(int i = 0; i < numResults; ++i) {
-        errNum |= clSetKernelArg(initializeBuffersKernel, 3, sizeof(int), &sourceVertices[i]);
+        errNum |= clSetKernelArg(initializeBuffersKernel, 6, sizeof(int), &sourceVertices[i]);
         if(errNum != CL_SUCCESS) {
-            printf("Error: can not set the 3rd arg for initialize Buffers Kernel.\n");
+            printf("Error: can not set the 6th arg for initialize Buffers Kernel.\n");
             exit(1);
         }
 
@@ -382,11 +387,17 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
                     printf("Error: in execute kernel 1.\n");
                     exit(1);
                 }
+			}
                 
+<<<<<<< HEAD
 
             }
             errNum = clEnqueueReadBuffer(commandQueue, maskArrayDevice, CL_FALSE, 0, sizeof(int) * graph->vertexCount, 
                 maskArrayHost, 0, NULL, &readDone) ;
+=======
+            errNum = clEnqueueReadBuffer(commandQueue, maskArrayDevice, CL_FALSE, 0, sizeof(int) * graph->vertexCount, 
+                                maskArrayHost, 0, NULL, &readDone) ;
+>>>>>>> ad168b7dba88f056e9b290d0cc84db80c9b94934
             if(errNum != CL_SUCCESS) {
                 printf("Error: Can not read from mask array.\n");
                 exit(1);                                                      
@@ -395,7 +406,7 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
         }
 
         // copy the results back
-        errNum = clEnqueueReadBuffer(commandQueue, costArrayDevice, CL_FALSE, 0, sizeof(int) * graph->vertexCount, 
+        errNum = clEnqueueReadBuffer(commandQueue, costArrayDevice, CL_FALSE, 0, sizeof(long) * graph->vertexCount, 
                         &outResultCosts[i * graph->vertexCount], 0, NULL, &readDone);
                     
         if(errNum != CL_SUCCESS) {

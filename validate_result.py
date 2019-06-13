@@ -1,4 +1,4 @@
-result_file = open("./NE-result.txt", "r")
+result_file = open("./CTR-result.txt", "r")
 gt_file = open("./script/ch9-1.1/results/USA-road-d.ss.res", "r")
 
 result = []
@@ -14,7 +14,7 @@ target = False
 for line in gt_file.readlines():
     line = line[:-1].split()
     if line[0] == 'f':
-        if line[-1].endswith("NE.ss"):
+        if line[-1].endswith("CTR.ss"):
             target = True
         else:
             target = False

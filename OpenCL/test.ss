@@ -1,5 +1,4 @@
-p sp sp sp 4
-s 1
-s 2
-s 3
-s 4
+p aux sp ss 1
+c file contains 92 source lines
+c
+s 1386425

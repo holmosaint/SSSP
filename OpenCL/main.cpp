@@ -20,7 +20,7 @@ struct node_struct {
 };
 
 bool operator < (const node_struct &a1, const node_struct &a2) {
-    return a1.dis < a2.dis;
+    return a1.id < a2.id;
 }
 
 void buildGraph(GraphData *graph, char *graphFile) {
@@ -67,7 +67,7 @@ void buildGraph(GraphData *graph, char *graphFile) {
         // vertex array
         graph->vertexArray[i] = offset;
         int arc_num = node_matrix[i].size();
-        sort(node_matrix[i].begin(), node_matrix[i].end());
+		std::sort(node_matrix[i].begin(), node_matrix[i].end());
         for(int j = 0;j < arc_num; ++j) {
             graph->edgeArray[offset + j] = node_matrix[i][j].id;
             graph->weightArray[offset + j] = node_matrix[i][j].dis;
@@ -175,7 +175,7 @@ int main(int argc, char **argv) {
     int sourceNum;
     int *sourceVertices;
     sourceNum = getSourceVertices(&sourceVertices, srcFile);
-    prinf("Source count: %d\n", sourceNum);
+	printf("Source count: %d\n", sourceNum);
     assert(sourceNum > 0);
 
     long *results = (long *)malloc(sizeof(long) * sourceNum * graph.vertexCount);
@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
 		assert(results[offset + cur_src] == 0);
 		for(int j = 0; j < graph.vertexCount; ++j) {
 			assert(results[offset + j] >= 0);
-			if(results[offset + j] == 2147483647) {
+			if(results[offset + j] == -1) {
 				printf("Wow!\n");
 				continue;
 			}
@@ -207,7 +207,7 @@ int main(int argc, char **argv) {
 		result_file << "ss " << dis << std::endl;
     }
 	result_file.close();
-    assert(offset == sourceNum * graph.vertexCount);
+	assert(offset == sourceNum * graph.vertexCount);
 
     releaseGraph(&graph);
     free(sourceVertices);

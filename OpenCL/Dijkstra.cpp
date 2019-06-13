@@ -388,16 +388,9 @@ void runDijkstra(cl_context context, cl_device_id deviceId, GraphData *graph, in
                     exit(1);
                 }
 			}
-                
-<<<<<<< HEAD
 
-            }
             errNum = clEnqueueReadBuffer(commandQueue, maskArrayDevice, CL_FALSE, 0, sizeof(int) * graph->vertexCount, 
                 maskArrayHost, 0, NULL, &readDone) ;
-=======
-            errNum = clEnqueueReadBuffer(commandQueue, maskArrayDevice, CL_FALSE, 0, sizeof(int) * graph->vertexCount, 
-                                maskArrayHost, 0, NULL, &readDone) ;
->>>>>>> ad168b7dba88f056e9b290d0cc84db80c9b94934
             if(errNum != CL_SUCCESS) {
                 printf("Error: Can not read from mask array.\n");
                 exit(1);                                                      

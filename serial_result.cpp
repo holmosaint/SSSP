@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
         // break;
 	}
     printf("Average processing time: %.2fs\n", (clock() - t) * 1.0 / CLOCKS_PER_SEC / src_node.size());
-	printf("Total processing time: %.2f\n", (clock() - start_t) * 1.0 / CLOCKS_PER_SEC)
+	printf("Total processing time: %.2f\n", (clock() - start_t) * 1.0 / CLOCKS_PER_SEC);
     
     result_file.close();
 	delete[]node_matrix;
